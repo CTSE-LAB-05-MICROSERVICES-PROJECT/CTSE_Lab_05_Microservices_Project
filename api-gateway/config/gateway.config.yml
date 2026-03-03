@@ -1,0 +1,76 @@
+http:
+  port: 8080
+admin:
+  port: 9876
+  host: 0.0.0.0
+apiEndpoints:
+  api:
+    host: localhost
+    paths: '/ip'
+  items:
+    methods: "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    host: localhost
+    paths: "/items*"
+  orders:
+    methods: "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    host: localhost
+    paths: "/orders*"
+  payments:
+    methods: "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    host: localhost
+    paths: "/payments*"
+serviceEndpoints:
+  httpbin:
+    url: 'https://httpbin.org'
+  itemService:
+    url: "http://item-service:8081"
+  orderService:
+    url: "http://order-service:8082"
+  paymentService:
+    url: "http://payment-service:8083"
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+pipelines:
+  default:
+    apiEndpoints:
+      - api
+    policies:
+    # - key-auth:
+      - proxy:
+          - action:
+              serviceEndpoint: httpbin 
+              changeOrigin: true
+  items:
+    apiEndpoints:
+      - items
+    policies:
+      # - key-auth:
+      - proxy:
+          - action:
+              serviceEndpoint: itemService
+              changeOrigin: true
+  orders:
+    apiEndpoints:
+      - orders
+    policies:
+      # - key-auth:
+      - proxy:
+          - action:
+              serviceEndpoint: orderService
+              changeOrigin: true
+  payments:
+    apiEndpoints:
+      - payments
+    policies:
+      # - key-auth:
+      - proxy:
+          - action:
+              serviceEndpoint: paymentService
+              changeOrigin: true

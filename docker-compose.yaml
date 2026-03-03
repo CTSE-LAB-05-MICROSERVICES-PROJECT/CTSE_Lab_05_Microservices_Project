@@ -1,0 +1,80 @@
+name: microservices_project_ctse
+services:
+  item-service:
+    container_name: item-service
+    restart: unless-stopped
+    build: ./services/item-service
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./services/item-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - microservices-net
+
+  order-service:
+    container_name: order-service
+    restart: unless-stopped
+    build: ./services/order-service
+    ports:
+      - "8082:8082"
+    env_file:
+      - ./services/order-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - microservices-net
+
+  payment-service:
+    container_name: payment-service
+    restart: unless-stopped
+    build: ./services/payment-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - microservices-net
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - item-service
+      - order-service
+      - payment-service
+    networks:
+      - microservices-net
+
+  postgres:
+    container_name: postgres
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_MULTIPLE_DATABASES: item_service_db, order_service_db, payment_service_db
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./configs/init/databases.sh:/docker-entrypoint-initdb.d/databases.sh
+
+volumes:
+  postgres_data:
+
+networks:
+  microservices-net:
+    driver:bridge
