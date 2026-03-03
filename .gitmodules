@@ -1,0 +1,9 @@
+[submodule "services/item-service"]
+	path = services/item-service
+	url = https://github.com/CTSE-LAB-05-MICROSERVICES-PROJECT/item-service.git
+[submodule "services/order-service"]
+	path = services/order-service
+	url = https://github.com/CTSE-LAB-05-MICROSERVICES-PROJECT/order-service.git
+[submodule "services/payment-service"]
+	path = services/payment-service
+	url = https://github.com/CTSE-LAB-05-MICROSERVICES-PROJECT/payment-service.git
